@@ -1,0 +1,8 @@
+output_file_path: 'generated_clickstreams.csv'
+sitemap:
+  pages_num: 20
+  links_per_page: 5
+case:
+  topic1: 0.5
+  topic2: 0.3
+  topic3: 0.2
