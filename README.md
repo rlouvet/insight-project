@@ -32,7 +32,7 @@ If a user clicks on link number one on the above page then a new clickstream rec
 
 The last column `IsResolved` is a flag that equals `True` when the customer acknowledges that the webpage he read helped him solve his support case.
 
-![Example of Customer Support Website Acknowledgment](https://github.com/rlouvet/insight-project/images/customer_support_website_acknowledgment_cropped.png "Example  of customer support website acknowledgment")
+![Example of Customer Support Website Acknowledgment](/images/customer_support_website_acknowledgment_cropped.png "Example  of customer support website acknowledgment")
 
 ## Sample scenario
 To illustrate how the data is processed here is a sample scenario.
@@ -47,7 +47,8 @@ To illustrate how the data is processed here is a sample scenario.
 
 ![Sample scenario](https://github.com/rlouvet/insight-project/images/sample_scenario.png "Sample scenario")
 
-One of the first data processing is to compute the customer paths:
+One of the first data processing job is to compute the customer paths:
+
 |PathStartTimestamp|CustomerID|Path|Pathlength|
 |---|---|---|---|
 |1515764691|1|[11,28,35,42]|4|
