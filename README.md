@@ -45,7 +45,7 @@ To illustrate how the data is processed here is a sample scenario.
 |1515764997|1|28|35|False|
 |1515765000|1|35|42|True|
 
-![Sample scenario](https://github.com/rlouvet/insight-project/images/sample_scenario.png "Sample scenario")
+![Sample scenario](/images/sample_scenario.png "Sample scenario")
 
 One of the first data processing job is to compute the customer paths:
 
