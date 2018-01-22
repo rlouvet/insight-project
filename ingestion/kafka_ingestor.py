@@ -12,11 +12,11 @@ df = pd.read_csv('../data_generator/generated_clickstreams.csv')
 for i in range(len(df)):
 	#print('record', i, ':', df.iloc[i].to_dict())
 	message = df.iloc[i].to_json()
-	
+
 	print('record', i, '(raw message):', message)
 	print('record', i, '(json.dumps):', json.dumps(message))
 	print('type(message):', type(message))
 
-	producer.send(topic='clickstreams-test', value=message)
+	producer.send(topic='clickstreams-topic', value=message)
 
 producer.flush()
