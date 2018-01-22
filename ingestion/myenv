@@ -1,0 +1,2 @@
+export KAFKA_SERVER=localhost
+export KAFKA_PORT=9092
