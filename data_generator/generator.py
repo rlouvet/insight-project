@@ -29,7 +29,7 @@ class Generator:
 		kafka_server = os.environ['KAFKA_SERVER']
 		kafka_port = os.environ['KAFKA_PORT']
 		self.producer = KafkaProducer(bootstrap_servers=':'.join([kafka_server, kafka_port]),
-		 value_serializer=lambda m: m.encode('ascii'))
+		 value_serializer=lambda m: m.encode('utf8'))
 
 		sitemap_cfg = config['sitemap']
 		walker_cfg = config['walker']
