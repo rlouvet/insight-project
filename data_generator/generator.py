@@ -7,7 +7,7 @@ during my Insight Fellowship program (NYC Jan 2018).
 It can generate customer click-stream data that is used as main input for the data pipeline.
 This data would be collected on the customer support website webservers.
 """
-import sys, os, json, datetime, random
+import sys, os, json, datetime, random, time
 import argparse
 import yaml
 import numpy as np
@@ -100,17 +100,14 @@ class Generator:
 
 	def flush(self):
 		if self.destination == 'kafka':
-			print('sending to kafka')
-			self.producer.send(topic='clickstreams-topic', value={'sample-key': 'sample-value'})
-			self.producer.flush()
 			#TODO: Need proper serialization technology here
 
 			for record in self.buff:
 				message = dict(zip(self.record_keys, map(str, record)))
-				print('message:', str(message))
-				print('type(message):', type(message))
+				#print('message:', str(message))
 				self.producer.send(topic='clickstreams-topic', value=json.dumps(message))
 			self.producer.flush()
+			self.compute_performance()
 		else:
 			df = pd.DataFrame(self.buff)
 			df.columns = ['epochtime','userid','pageid_origin','pageid_target','case_status']
@@ -120,6 +117,11 @@ class Generator:
 
 		self.buff=list()
 		self.is_first_flush = False
+
+	def compute_performance(self):
+		avg_input_throughput = self.buff_counter / (time.time() - start_time)
+		print(avg_input_throughput)
+
 
 if __name__ == '__main__':
 
@@ -135,6 +137,8 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	gen = Generator(cfg)
+
+	start_time = time.time()
 	gen.generate_data(
 		n_sessions=args.n_sessions,
 		n_records=args.n_records,
