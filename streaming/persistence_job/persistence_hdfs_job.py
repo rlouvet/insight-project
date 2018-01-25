@@ -11,19 +11,21 @@ from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 
-#with open("config.txt", 'r') as f:
-#    brokers_dns_str= f.readline()
+brokers_dns_str = os.environ['KAFKA_SERVERS']
+topic = os.environ['TOPIC']
+bucket_name = os.environ['BUCKET_NAME']
 
 if __name__ == "__main__":
 
     sc = SparkContext(appName="spark_streaming_hdfs")
     ssc = StreamingContext(sc, 1)
 
-    #kafka_stream = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 1})
-    brokers_dns_str = 'ec2-35-168-217-31.compute-1.amazonaws.com:9092,ec2-52-70-15-239.compute-1.amazonaws.com:9092,ec2-52-7-98-10.compute-1.amazonaws.com:9092'
-    kafka_stream = KafkaUtils.createDirectStream(ssc, ['clickstreams-topic'], {"metadata.broker.list": brokers_dns_str})
+    kafka_stream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers_dns_str})
+    kafka_stream.saveAsTextFiles('s3a://' + bucket_name + '/kafka_stream')
 
     parsed = kafka_stream.map(lambda v: json.loads(v[1]))
+    parsed.saveAsTextFiles('s3a://' + bucket_name + '/parsed')
+
     count = parsed.count()
     count.pprint()
 
