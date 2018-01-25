@@ -15,5 +15,5 @@ if __name__ == "__main__":
 
     conf = SparkConf().setAppName('Batch - Compute User Path')
     sc = SparkContext(conf=conf)
-    cs = sc.textFile('s3a://' + bucket_name + '/parsed')
+    cs = sc.textFile('s3a://' + bucket_name + '/parsed*')
     print('Count: ' + cs.take(100))
