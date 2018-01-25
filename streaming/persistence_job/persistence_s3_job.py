@@ -21,12 +21,11 @@ if __name__ == "__main__":
     ssc = StreamingContext(sc, 1)
 
     kafka_stream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers_dns_str})
-    kafka_stream.saveAsTextFiles('s3a://' + bucket_name + '/kafka_stream')
 
-    parsed = kafka_stream.map(lambda v: json.loads(v[1]))
-    parsed.saveAsTextFiles('s3a://' + bucket_name + '/parsed')
+    messages = kafka_stream.map(lambda v: v[1])
+    messages.saveAsTextFiles('s3a://' + bucket_name + '/parsed')
 
-    count = parsed.count()
+    count = messages.count()
     count.pprint()
 
     ssc.start()
