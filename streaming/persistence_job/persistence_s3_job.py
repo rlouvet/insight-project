@@ -4,7 +4,7 @@
 [Customer Support Percolation] Persistence to HDFS Job
 This script is part of the "Customer Support Percolation" project developped
 during my Insight Fellowship program (NYC Jan 2018).
-It can persist customer click-stream data into a master dataset on HDFS.
+It can persist customer click-stream data into a master dataset on AWS S3.
 """
 import os, json
 from pyspark import SparkContext
