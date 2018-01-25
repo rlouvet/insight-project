@@ -1,1 +1,1 @@
-ec2-35-168-217-31.compute-1.amazonaws.com:9092,ec2-52-70-15-239.compute-1.amazonaws.com:9092,ec2-52-7-98-10.compute-1.amazonaws.com:9092 clickstreams-topic
+ec2-35-168-217-31.compute-1.amazonaws.com:9092,ec2-52-70-15-239.compute-1.amazonaws.com:9092,ec2-52-7-98-10.compute-1.amazonaws.com:9092
