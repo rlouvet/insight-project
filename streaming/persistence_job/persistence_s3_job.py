@@ -7,6 +7,7 @@ during my Insight Fellowship program (NYC Jan 2018).
 It can persist customer click-stream data into a master dataset on AWS S3.
 """
 import os, json
+import datetime, time
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
@@ -23,7 +24,7 @@ if __name__ == "__main__":
     kafka_stream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers_dns_str})
 
     messages = kafka_stream.map(lambda v: v[1])
-    messages.saveAsTextFiles('s3a://' + bucket_name + '/parsed')
+    messages.saveAsTextFiles('s3a://' + bucket_name + '/clickstreams-' + now.strftime("%Y%m%dT%H%M%S"))
 
     count = messages.count()
     count.pprint()
