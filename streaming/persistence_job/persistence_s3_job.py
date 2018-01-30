@@ -18,12 +18,13 @@ bucket_name = os.environ['BUCKET_NAME']
 
 if __name__ == "__main__":
 
-    sc = SparkContext(appName="spark_streaming_hdfs")
+    sc = SparkContext(appName="spark_streaming")
     ssc = StreamingContext(sc, 1)
 
     kafka_stream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers_dns_str})
 
     messages = kafka_stream.map(lambda v: v[1])
+    now = datetime.datetime.now()
     messages.saveAsTextFiles('s3a://' + bucket_name + '/clickstreams-' + now.strftime("%Y%m%dT%H%M%S"))
 
     count = messages.count()
