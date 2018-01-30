@@ -6,19 +6,13 @@ This script is part of the "Customer Support Percolation" project developped
 during my Insight Fellowship program (NYC Jan 2018).
 It can process the master click-stream dataset to compute user paths.
 """
-import os, json
+import sys, os, json
 from pyspark import SparkContext, SparkConf
 
+target_time = sys.argv[1]
 bucket_name = os.environ['BUCKET_NAME']
 
-if __name__ == "__main__":
-    #Setting up spark context
-    conf = SparkConf().setAppName('Batch - Compute User Path')
-    sc = SparkContext(conf=conf)
-
-    #Targetting master dataset
-    cs = sc.textFile('s3a://' + bucket_name + '/parsed*')
-
+def compute_paths(cs):
     #Spark transformation: parsing json lines
     parsed_cs = cs.map(lambda m: json.loads(m))
     #Spark transformation: working with key-value pairs with key=userid
@@ -60,5 +54,16 @@ if __name__ == "__main__":
     paths = combined_records.combineByKey(path_combiner, path_merge_value, path_merge_combiners)
 
     #For print purpose
-    printable_paths = paths.mapValues(lambda x: list(x)).collect()
+    printable_paths = paths.mapValues(lambda x: list(x)).take(100)
     print('=== Paths: ===\n' + str(printable_paths))
+
+
+if __name__ == "__main__":
+    #Setting up spark context
+    conf = SparkConf().setAppName('Batch - Compute User Path')
+    sc = SparkContext(conf=conf)
+
+    #Targetting master dataset
+    cs = sc.textFile('s3a://' + bucket_name + '/clickstreams-' + target_time + '*')
+
+    compute_paths(cs)
