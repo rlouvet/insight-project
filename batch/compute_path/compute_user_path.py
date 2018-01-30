@@ -20,12 +20,12 @@ if __name__ == "__main__":
     sc = SparkContext(conf=conf)
 
     #Targetting master dataset
-    cs = sc.textFile('s3a://' + read_bucket_name + '/clickstreams-' + target_time + '*')
+    records = sc.textFile('s3a://' + read_bucket_name + '/clickstreams-' + target_time + '*')
 
     #Spark transformation: parsing json lines
-    parsed_cs = cs.map(lambda m: json.loads(m))
+    parsed_records = records.map(lambda m: json.loads(m))
     #Spark transformation: working with key-value pairs with key=userid
-    user_kv = parsed_cs.map(lambda x: (x['userid'], x))
+    user_records = parsed_records.map(lambda x: (x['userid'], x))
 
     #Spark transformation: combineByKey to build a time-ordered list of records per userid
     def record_combiner(v):
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         c1.extend(c2)
         return sorted(c1, key= lambda v: int(v['epochtime']))
 
-    combined_records = user_kv.combineByKey(record_combiner, record_merge_value, record_merge_combiners)
+    combined_user_records = user_records.combineByKey(record_combiner, record_merge_value, record_merge_combiners)
 
     #Spark transformation: combineByKey to build a list of paths per userid
     def path_combiner(records):
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     def path_merge_combiners(paths1, paths2):
         return paths1 + paths2
 
-    paths = combined_records.combineByKey(path_combiner, path_merge_value, path_merge_combiners)
-    print('=== Path: ===\n' + str(paths.first()))
+    user_paths = combined_user_records.combineByKey(path_combiner, path_merge_value, path_merge_combiners)
+    print('=== Path: ===\n' + str(user_paths.first()))
 
-    paths.saveAsTextFile('s3a://' + write_bucket_name + '/' + target_time)
+    #paths_to_write.saveAsTextFile('s3a://' + write_bucket_name + '/' + target_time)
