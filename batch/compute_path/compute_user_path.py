@@ -61,6 +61,10 @@ if __name__ == "__main__":
         return paths1 + paths2
 
     user_paths = combined_user_records.combineByKey(path_combiner, path_merge_value, path_merge_combiners)
-    print('=== Path: ===\n' + str(user_paths.first()))
+    print('=== User Paths: ===\n' + str(user_paths.first()))
 
-    #paths_to_write.saveAsTextFile('s3a://' + write_bucket_name + '/' + target_time)
+    paths = user_paths.flatMapValues(lambda x: x).values()
+    print('=== Paths: ===\n' + str(paths.take(10)))
+
+    paths_rank = paths.map(lambda x: (str(x), 1)).reduceByKey(lambda x, y: x + y).takeOrdered(10, key=lambda x: -x[1])
+    print('=== Paths Rank: ===\n' + str(paths_rank))
