@@ -10,7 +10,8 @@ import sys, os, json
 from pyspark import SparkContext, SparkConf
 
 target_time = sys.argv[1]
-bucket_name = os.environ['BUCKET_NAME']
+read_bucket_name = os.environ['READ_BUCKET_NAME']
+write_bucket_name = os.environ['WRITE_BUCKET_NAME']
 
 
 if __name__ == "__main__":
@@ -19,7 +20,7 @@ if __name__ == "__main__":
     sc = SparkContext(conf=conf)
 
     #Targetting master dataset
-    cs = sc.textFile('s3a://' + bucket_name + '/clickstreams-' + target_time + '*')
+    cs = sc.textFile('s3a://' + read_bucket_name + '/clickstreams-' + target_time + '*')
 
     #Spark transformation: parsing json lines
     parsed_cs = cs.map(lambda m: json.loads(m))
@@ -60,8 +61,6 @@ if __name__ == "__main__":
         return paths1 + paths2
 
     paths = combined_records.combineByKey(path_combiner, path_merge_value, path_merge_combiners)
+    print('=== Path: ===\n' + str(paths.first()))
 
-    #For print purpose
-    #printable_paths = paths.mapValues(lambda x: list(x)).first()
-    printable_paths = paths.first()
-    print('=== Paths: ===\n' + str(printable_paths))
+    paths.saveAsTextFile('s3a://' + write_bucket_name + '/' + target_time)
