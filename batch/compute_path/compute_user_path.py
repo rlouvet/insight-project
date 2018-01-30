@@ -38,10 +38,6 @@ if __name__ == "__main__":
 
     combined_records = user_kv.combineByKey(record_combiner, record_merge_value, record_merge_combiners)
 
-    #For print purpose
-    printable_combined_records = combined_records.mapValues(lambda x: list(x)).collect()
-    print('=== Head of combined records: ===\n' + str(printable_combined_records))
-
     #Spark transformation: combineByKey to build a list of paths per userid
     def path_combiner(records):
         paths = [[]]
