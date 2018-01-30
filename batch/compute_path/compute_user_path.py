@@ -12,7 +12,15 @@ from pyspark import SparkContext, SparkConf
 target_time = sys.argv[1]
 bucket_name = os.environ['BUCKET_NAME']
 
-def compute_paths(cs):
+
+if __name__ == "__main__":
+    #Setting up spark context
+    conf = SparkConf().setAppName('Batch - Compute User Path')
+    sc = SparkContext(conf=conf)
+
+    #Targetting master dataset
+    cs = sc.textFile('s3a://' + bucket_name + '/clickstreams-' + target_time + '*')
+
     #Spark transformation: parsing json lines
     parsed_cs = cs.map(lambda m: json.loads(m))
     #Spark transformation: working with key-value pairs with key=userid
@@ -54,16 +62,6 @@ def compute_paths(cs):
     paths = combined_records.combineByKey(path_combiner, path_merge_value, path_merge_combiners)
 
     #For print purpose
-    printable_paths = paths.mapValues(lambda x: list(x)).take(100)
+    #printable_paths = paths.mapValues(lambda x: list(x)).first()
+    printable_paths = paths.first()
     print('=== Paths: ===\n' + str(printable_paths))
-
-
-if __name__ == "__main__":
-    #Setting up spark context
-    conf = SparkConf().setAppName('Batch - Compute User Path')
-    sc = SparkContext(conf=conf)
-
-    #Targetting master dataset
-    cs = sc.textFile('s3a://' + bucket_name + '/clickstreams-' + target_time + '*')
-
-    compute_paths(cs)
