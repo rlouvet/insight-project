@@ -6,9 +6,11 @@ This script is part of the "Customer Support Percolation" project developped
 during my Insight Fellowship program (NYC Jan 2018).
 It can process the master click-stream dataset to compute user paths.
 """
-import sys, os, json
+
 from pyspark import SparkContext, SparkConf
-from pyspark.sql import SQLContext
+from pyspark.sql import SQLContext, Row
+from pyspark.sql.types import *
+from pyspark.sql.functions import col, countDistinct
 
 target_time = sys.argv[1]
 read_bucket_name = os.environ['READ_BUCKET_NAME']
@@ -19,7 +21,7 @@ if __name__ == "__main__":
     #Setting up spark context
     conf = SparkConf().setAppName('Batch - Compute User Path')
     sc = SparkContext(conf=conf)
-    sqlc = SQLContext(sc)
+    sql = SQLContext(sc)
 
     #Targetting master dataset
     records = sc.textFile('s3a://' + read_bucket_name + '/clickstreams-' + target_time + '*')
