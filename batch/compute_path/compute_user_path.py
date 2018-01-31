@@ -68,11 +68,11 @@ if __name__ == "__main__":
     print('=== User Paths: ===\n' + str(user_paths.first()))
 
     #Converting RDD into Spark dataframe for more performant aggregation operations
-    paths = user_paths.flatMapValues(lambda x: x).values().map(lambda x: Row(** {'path': x}))
+    paths = user_paths.flatMapValues(lambda x: x).values().map(lambda x: Row(** {'path': json.dumps(x)}))
 
     def build_schema():
         schema = StructType([
-                StructField("path", ArrayType(IntegerType(), True), True)
+                StructField("path", StringType(), True)
             ])
         return schema
 
@@ -84,4 +84,4 @@ if __name__ == "__main__":
     limited_paths_rank = paths_rank_df.limit(1000)
     limited_paths_rank.show()
 
-    paths_rank_df.write.csv('s3a://' + write_bucket_name + '/results-' + target_time)
+    limited_paths_rank.write.csv('s3a://' + write_bucket_name + '/results-' + target_time)
