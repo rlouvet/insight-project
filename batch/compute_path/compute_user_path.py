@@ -24,7 +24,8 @@ if __name__ == "__main__":
     sql = SQLContext(sc)
 
     #Targetting master dataset
-    records = sc.textFile('s3a://' + read_bucket_name + '/clickstreams-' + target_time + '*')
+    records = sc.textFile('s3a://' + read_bucket_name
+        + '/clickstreams-' + target_time + '*')
 
     #Spark transformation: parsing json lines
     parsed_records = records.map(lambda m: json.loads(m))
@@ -43,7 +44,11 @@ if __name__ == "__main__":
         c1.extend(c2)
         return sorted(c1, key= lambda v: int(v['epochtime']))
 
-    combined_user_records = user_records.combineByKey(record_combiner, record_merge_value, record_merge_combiners)
+    combined_user_records = user_records.combineByKey(
+        record_combiner,
+        record_merge_value,
+        record_merge_combiners
+        )
 
     #Spark transformation: combineByKey to build a list of paths per userid
     def path_combiner(records):
@@ -64,7 +69,12 @@ if __name__ == "__main__":
     def path_merge_combiners(paths1, paths2):
         return paths1 + paths2
 
-    user_paths = combined_user_records.combineByKey(path_combiner, path_merge_value, path_merge_combiners)
+    user_paths = combined_user_records.combineByKey(
+        path_combiner,
+        path_merge_value,
+        path_merge_combiners
+        )
+
     print('=== User Paths: ===\n' + str(user_paths.first()))
 
     #Converting RDD into Spark dataframe for more performant aggregation operations
@@ -84,4 +94,5 @@ if __name__ == "__main__":
     limited_paths_rank = paths_rank_df.limit(1000)
     limited_paths_rank.show()
 
-    limited_paths_rank.write.csv('s3a://' + write_bucket_name + '/results-' + target_time)
+    limited_paths_rank.write.csv('s3a://' + write_bucket_name
+        + '/results-' + target_time + '-' + now.strftime("%Y%m%dT%H%M%S"))
