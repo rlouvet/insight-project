@@ -18,6 +18,8 @@ write_bucket_name = os.environ['WRITE_BUCKET_NAME']
 
 
 if __name__ == "__main__":
+    start_time = datetime.datetime.now()
+
     #Setting up spark context
     conf = SparkConf().setAppName('Batch - Compute User Path')
     sc = SparkContext(conf=conf)
@@ -95,4 +97,4 @@ if __name__ == "__main__":
     limited_paths_rank.show()
 
     limited_paths_rank.write.csv('s3a://' + write_bucket_name
-        + '/results-' + target_time + '-' + now.strftime("%Y%m%dT%H%M%S"))
+        + '/results-' + target_time + '-' + start_time.strftime("%Y%m%dT%H%M%S"))
