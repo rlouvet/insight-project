@@ -8,6 +8,7 @@ It can process the master click-stream dataset to compute user paths.
 """
 import sys, os, json
 from pyspark import SparkContext, SparkConf
+from pyspark.sql import SQLContext
 
 target_time = sys.argv[1]
 read_bucket_name = os.environ['READ_BUCKET_NAME']
@@ -18,6 +19,7 @@ if __name__ == "__main__":
     #Setting up spark context
     conf = SparkConf().setAppName('Batch - Compute User Path')
     sc = SparkContext(conf=conf)
+    sqlc = SQLContext(sc)
 
     #Targetting master dataset
     records = sc.textFile('s3a://' + read_bucket_name + '/clickstreams-' + target_time + '*')
@@ -26,20 +28,6 @@ if __name__ == "__main__":
     parsed_records = records.map(lambda m: json.loads(m))
     #Spark transformation: working with key-value pairs with key=userid
     user_records = parsed_records.map(lambda x: (x['userid'], x))
-
-    #Spark transformation: combineByKey to build a time-ordered list of records per userid
-    def record_combiner(v):
-        return [v]
-
-    def record_merge_value(c, v):
-        c.extend([v])
-        return sorted(c, key= lambda v: int(v['epochtime']))
-
-    def record_merge_combiners(c1, c2):
-        c1.extend(c2)
-        return sorted(c1, key= lambda v: int(v['epochtime']))
-
-    combined_user_records = user_records.combineByKey(record_combiner, record_merge_value, record_merge_combiners)
 
     #Spark transformation: combineByKey to build a list of paths per userid
     def path_combiner(records):
@@ -63,8 +51,21 @@ if __name__ == "__main__":
     user_paths = combined_user_records.combineByKey(path_combiner, path_merge_value, path_merge_combiners)
     print('=== User Paths: ===\n' + str(user_paths.first()))
 
-    paths = user_paths.flatMapValues(lambda x: x).values()
-    print('=== Paths: ===\n' + str(paths.take(10)))
+    #Converting RDD into Spark dataframe for more performant aggregation operations
+    paths = user_paths.flatMapValues(lambda x: x).values().map(lambda x: Row(** {'path': x}))
 
-    paths_rank = paths.map(lambda x: (str(x), 1)).reduceByKey(lambda x, y: x + y).takeOrdered(10, key=lambda x: -x[1])
-    print('=== Paths Rank: ===\n' + str(paths_rank))
+    def build_schema():
+        schema = StructType([
+                StructField("path", ArrayType(IntegerType(), True), True)
+            ])
+        return schema
+
+    paths_df = sql.createDataFrame(paths, schema=build_schema())
+    paths_df.show()
+
+    paths_rank_df = paths_df.groupBy('path').count().sort(col("count").desc())
+
+    limited_paths_rank = paths_rank_df.limit(1000)
+    limited_paths_rank.show()
+
+    paths_rank_df.write.csv('s3a://' + write_bucket_name + '/results-' + target_time)
