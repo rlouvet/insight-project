@@ -45,14 +45,14 @@ if __name__ == "__main__":
     def path_combiner(records):
         paths = [[]]
         for record in records:
-            paths[-1].extend(record['pageid_target'])
+            paths[-1].extend([int(record['pageid_target'])])
             if record['case_status'] == "True":
                 paths.append([])
         return paths
 
     def path_merge_value(paths, records):
         for record in records:
-            paths[-1].extend(record['pageid_target'])
+            paths[-1].extend([int(record['pageid_target'])])
             if record['case_status'] == "True":
                 paths.append([])
         return paths
