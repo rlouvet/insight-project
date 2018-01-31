@@ -6,7 +6,7 @@ This script is part of the "Customer Support Percolation" project developped
 during my Insight Fellowship program (NYC Jan 2018).
 It can process the master click-stream dataset to compute user paths.
 """
-import sys, os, json
+import sys, os, json, datetime
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext, Row
 from pyspark.sql.types import *
