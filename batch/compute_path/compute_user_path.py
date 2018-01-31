@@ -29,6 +29,20 @@ if __name__ == "__main__":
     #Spark transformation: working with key-value pairs with key=userid
     user_records = parsed_records.map(lambda x: (x['userid'], x))
 
+    #Spark transformation: combineByKey to build a time-ordered list of records per userid
+    def record_combiner(v):
+        return [v]
+
+    def record_merge_value(c, v):
+        c.extend([v])
+        return sorted(c, key= lambda v: int(v['epochtime']))
+
+    def record_merge_combiners(c1, c2):
+        c1.extend(c2)
+        return sorted(c1, key= lambda v: int(v['epochtime']))
+
+    combined_user_records = user_records.combineByKey(record_combiner, record_merge_value, record_merge_combiners)
+
     #Spark transformation: combineByKey to build a list of paths per userid
     def path_combiner(records):
         paths = [[]]
