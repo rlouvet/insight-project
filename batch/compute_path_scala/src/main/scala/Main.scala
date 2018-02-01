@@ -7,7 +7,7 @@ object Main{
     def main(args: Array[String]) {
 
     val read_bucket_name = sys.env("READ_BUCKET_NAME")
-    val read_bucket_name = sys.env("WRITE_BUCKET_NAME")
+    val write_bucket_name = sys.env("WRITE_BUCKET_NAME")
     val target_time = args(0)
 
     val spark = SparkSession
