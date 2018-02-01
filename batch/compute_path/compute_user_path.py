@@ -10,7 +10,7 @@ import sys, os, json, datetime
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext, Row
 from pyspark.sql.types import *
-from pyspark.sql.functions import col, countDistinct
+from pyspark.sql.functions import col, countDistinct, approxCountDistinct
 
 target_time = sys.argv[1]
 read_bucket_name = os.environ['READ_BUCKET_NAME']
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     #Setting up spark context
     conf = SparkConf().setAppName('Batch - Compute User Path')
     sc = SparkContext(conf=conf)
-    sql = SQLContext(sc)
+    sqlc = SQLContext(sc)
 
     #Targetting master dataset
     records = sc.textFile('s3a://' + read_bucket_name
@@ -88,13 +88,15 @@ if __name__ == "__main__":
             ])
         return schema
 
-    paths_df = sql.createDataFrame(paths, schema=build_schema())
-    paths_df.show()
+    paths_df = sqlc.createDataFrame(paths, schema=build_schema())
 
-    paths_rank_df = paths_df.groupBy('path').count().sort(col("count").desc())
+    #Count occurences of distinct paths
+    paths_df.createOrReplaceTempView("paths_rank")
+    paths_rank_df = sqlc.sql("SELECT COUNT(DISTINCT path) FROM paths_rank")
 
     limited_paths_rank = paths_rank_df.limit(1000)
     limited_paths_rank.show()
 
+    #Write results to CSV on S3
     limited_paths_rank.write.csv('s3a://' + write_bucket_name
         + '/results-' + target_time + '-' + start_time.strftime("%Y%m%dT%H%M%S"))
