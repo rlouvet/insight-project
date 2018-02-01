@@ -1,30 +1,30 @@
-import org.viirya.CountMinSketch._
+//imports
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.SparkSession
+
+import org.viirya.CountMinSketch._
 
 object Main{
     def main(args: Array[String]) {
 
-    val spark = SparkSession.
-    builder.master("local[*]")
-     .appName("Simple Application")
-    .getOrCreate()
+    val spark = SparkSession
+       .builder()
+       .master("local[*]")
+       .appName("Compute path app")
+       .getOrCreate()
 
-    import spark.sqlContext.implicits._
+    //import spark.sqlContext.implicits._
+    // For implicit conversions like converting RDDs to DataFrames
+    import spark.implicits._
 
-    def toLetter(i: Int): String = (i + 97).toChar.toString
+    val df = spark.read.json("/home/robin/Documents/insight/dev/insight-project/local/sample-data.json")
 
-    // Generate a RDD
-    val rows = Seq.tabulate(20) { i =>
-      if (i % 3 == 0) (1, toLetter(1), -1.0) else (i, toLetter(i), i * -1.0)
-      }
+    // Call API to calculate estimated frequencies of column "numbers"
+    val results = countMinSketch(df, "userid").collect()
 
-      // Create a DataFrame from the RDD
-      val df = rows.toDF("numbers", "letters", "negDoubles")
-
-      // Call API to calculate estimated frequencies of column "numbers"
-      val results = countMinSketch(df, "numbers").collect()
-
-      results.foreach(println)
+    results.foreach(println)
 
     }
 }
