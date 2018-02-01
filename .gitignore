@@ -1,3 +1,7 @@
 myenv
 *.csv
+*.pyc
 local/
+batch/compute_path_scala/project
+batch/compute_path_scala/target
+batch/compute_path_scala/spark-warehouse
