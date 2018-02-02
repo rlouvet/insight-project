@@ -57,7 +57,6 @@ object Main{
             $"pageid_target".cast(IntegerType),
             $"case_status".cast(BooleanType)
             )
-        df.describe().show()
 
         // Order by userid (primary) and epochtime (secondary)
         val ordered_df = df.orderBy("userid", "epochtime")
@@ -72,7 +71,6 @@ object Main{
           .groupBy($"userid")
           .agg(epochtime_list, pageid_origin_list, pageid_target_list, case_status_list)
 
-        user_agg_df.show()
 
         object PathResolver {
             def resolve(user_records: Row): (Int, ListBuffer[ListBuffer[Int]]) = {
@@ -101,7 +99,6 @@ object Main{
 
         // Call API to apply Count Min Sketch on paths
         val results = countMinSketch(paths_df, "value").orderBy(desc("value_freq")).show()
-        //results.foreach(println)
 
     }
 }
