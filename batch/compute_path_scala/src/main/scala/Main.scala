@@ -35,7 +35,7 @@ object Main{
             read_target = "s3a://" + read_bucket_name + "/clickstreams-" + target + "*"
         } else if (current_environment == "local") {
             spark_master = "local[*]"
-            read_target = "/home/robin/Documents/insight/dev/insight-project/local/input/sample-data.json"
+            read_target = target
         } else {
             println(usage)
         }
