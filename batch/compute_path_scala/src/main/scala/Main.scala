@@ -26,7 +26,7 @@ object Main{
             read_target = "s3a://" + read_bucket_name + "/clickstreams-" + target_time + "*"
         } else if (current_environment == "local") {
             val spark_master = "local[*]"
-            var read_target = ""/home/robin/Documents/insight/dev/insight-project/local/sample-data.json"
+            var read_target = "/home/robin/Documents/insight/dev/insight-project/local/sample-data.json"
         } else {
             println(usage)
         }
