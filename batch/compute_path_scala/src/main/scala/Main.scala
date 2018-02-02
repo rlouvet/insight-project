@@ -19,14 +19,19 @@ object Main{
           case Array("--target", argTarget: String) => target = argTarget
         }
 
+        var spark_master = ""
+        var read_bucket_name = ""
+        var write_bucket_name = ""
+        var read_target = ""
+
         if (current_environment == "aws"){
-            val spark_master = sys.env("SPARK_MASTER")
-            val read_bucket_name = sys.env("READ_BUCKET_NAME")
-            val write_bucket_name = sys.env("WRITE_BUCKET_NAME")
-            read_target = "s3a://" + read_bucket_name + "/clickstreams-" + target_time + "*"
+            spark_master = sys.env("SPARK_MASTER")
+            read_bucket_name = sys.env("READ_BUCKET_NAME")
+            write_bucket_name = sys.env("WRITE_BUCKET_NAME")
+            read_target = "s3a://" + read_bucket_name + "/clickstreams-" + target + "*"
         } else if (current_environment == "local") {
-            val spark_master = "local[*]"
-            var read_target = "/home/robin/Documents/insight/dev/insight-project/local/sample-data.json"
+            spark_master = "local[*]"
+            read_target = "/home/robin/Documents/insight/dev/insight-project/local/sample-data.json"
         } else {
             println(usage)
         }
