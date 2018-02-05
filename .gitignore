@@ -1,6 +1,7 @@
 myenv
 *.csv
 *.pyc
+*.db
 local/
 batch/compute_path_scala/project
 batch/compute_path_scala/target
