@@ -19,7 +19,7 @@ def index():
         s3 = boto3.resource('s3')
         try:
             s3.Bucket(bucket_name).download_file(file_name, '/tmp/data.json')
-            data = json.load('/tmp/data.json')
+            data = json.load(open('/tmp/data.json'))
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
                 print("The object does not exist.")
