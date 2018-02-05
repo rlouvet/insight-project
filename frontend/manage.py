@@ -26,7 +26,7 @@ def dropdb():
         print(colored('The SQL database has been deleted', 'green'))
 
 
-manager.add_command('runserver', Server(host="0.0.0.0", port=5000))
+manager.add_command('runserver', Server(host="0.0.0.0", port=80))
 manager.add_command('shell', Shell(make_context=make_shell_context))
 
 if __name__ == '__main__':
