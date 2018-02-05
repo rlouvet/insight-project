@@ -6,10 +6,36 @@
 
 {% block content %}
 
-	<h1 class="ui header">{{ title }}</h1>
+    <h1 class="ui header">{{ title }}</h1>
 
-	{% if current_user.is_authenticated %}
-	  	<h2 class="ui header">Hi {{ current_user.first_name }}!</h2>
-	{% endif %}
+    {% if current_user.is_authenticated %}
+        <h2 class="ui header">Hi {{ current_user.first_name }}!</h2>
+    {% endif %}
+
+    {% if results %}
+      <h2>PathRank:</h2>
+    {% else %}
+      <h2>Waiting for results, please wait 1 minute and reload this page.</h2>
+    {% endif %}
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Path</th>
+                <th>Rank</th>
+                <th>Count</th>
+            <tr>
+        </thead>
+        <tbody>
+            {% for path_record in results %}
+            <tr>
+                <td>{{ path_record[0] }}</td>
+                <td>{{ loop.index }}</td>
+                <td>{{ path_record[1] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock %}
