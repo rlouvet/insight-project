@@ -1,33 +1,32 @@
-from flask import render_template, jsonify
+from flask import render_template, jsonify, request
 from app import app
 import random
 import os, json
 import boto3
 import botocore
-
-env_mode = os.getenv('ENV_MODE', 'aws')
+import awshelper
 
 @app.route('/')
-@app.route('/index')
 def index():
-
-    if env_mode == 'aws':
-
-        bucket_name = os.environ['BUCKET_NAME']
-        file_name = os.environ['FILE_NAME']
-
-        s3 = boto3.resource('s3')
-        try:
-            s3.Bucket(bucket_name).download_file(file_name, '/tmp/data.json')
-            data = json.load(open('/tmp/data.json'))
-        except botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] == "404":
-                print("The object does not exist.")
-            else:
-                raise
-    else:
-        file_path = os.environ['FILE_PATH']
-        data = json.load(open(file_path))
+    bucket_objects_list = awshelper.list_files()
+    processed_object_list = [
+    element.key.split("/")[0] for element in bucket_objects_list if '.json' in element.key
+    ]
+    return render_template('index.html', batch_runs=processed_object_list)
 
 
-    return render_template('base.html', title='Home', results=data)
+@app.route('/run/<string:run_id>')
+def run(run_id):
+    bucket_objects_list = awshelper.list_files()
+    filtered_list = [
+        element.key for element in bucket_objects_list
+        if run_id == element.key.split("/")[0]
+        and '.json' in element.key.split("/")[1]
+    ]
+    awshelper.download_file(filtered_list[0])
+
+    data = []
+    for line in open('/tmp/data.json', 'r'):
+        data.append(json.loads(line))
+
+    return render_template('results.html', run_id=run_id, results=data)

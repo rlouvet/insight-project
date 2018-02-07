@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="starter-template">
+  <h1>Spark Batch Runs</h1>
+  <p class="lead">Here is the list of outputs for the latest Spark batch runs. </br>
+      You can click on one output to display detailed results.</p>
+</div>
+
+<table class="table">
+  <thead>
+      <tr>
+          <th>Batch Run ID</th>
+      <tr>
+  </thead>
+  <tbody>
+      {% for batch_run_element in batch_runs %}
+      <tr>
+          <td><a href="/run/{{ batch_run_element }}"> {{ batch_run_element }}</td>
+      </tr>
+      {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

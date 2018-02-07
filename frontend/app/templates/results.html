@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="starter-template">
+  <h1>Path Rank</h1>
+  <p class="lead">Here is the list of customer paths ranked by frequency</p>
+  <p><mark>RunID: {{run_id}}</mark></p>
+</div>
+
+<table class="table">
+  <thead>
+      <tr>
+          <th>Path</th>
+          <th>Rank</th>
+          <th>Count</th>
+      <tr>
+  </thead>
+  <tbody>
+      {% for path_record in results %}
+      <tr>
+          <td>{{ path_record.value }}</td>
+          <td>{{ loop.index }}</td>
+          <td>{{ path_record.count }}</td>
+      </tr>
+      {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
