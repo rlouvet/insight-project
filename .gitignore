@@ -6,5 +6,5 @@ local/
 batch/compute_path_scala/project
 batch/compute_path_scala/target
 batch/compute_path_scala/spark-warehouse
-streaming/persistence_job_scala/project
-streaming/persistence_job_scala/target
+streaming/persistence_job/project
+streaming/persistence_job/target
