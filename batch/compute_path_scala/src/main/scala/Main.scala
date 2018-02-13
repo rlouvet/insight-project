@@ -5,46 +5,29 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.Row
 
-import org.viirya.CountMinSketch._
+//import org.viirya.CountMinSketch._
+import com.clearspring.analytics.stream.frequency.CountMinSketch
+import java.util.Random
 
 object Main{
 
     val usage = """
-        Usage: --env [local|aws] --target [ex:20180130T125955-1517319]
+        Usage: target [ex:year=2018/month=02/day=13/hour=01]
     """
 
     def main(args: Array[String]) {
         if (args.length == 0) println(usage)
 
-        var current_environment = ""
-        var target = ""
-        args.sliding(2, 2).toList.collect {
-          case Array("--env", argEnv: String) => current_environment = argEnv
-          case Array("--target", argTarget: String) => target = argTarget
-        }
+        val target = args(0)
 
-        var spark_master = ""
-        var read_bucket_name = ""
-        var write_bucket_name = ""
-        var read_target = ""
-
-        if (current_environment == "aws"){
-            spark_master = sys.env("SPARK_MASTER")
-            read_bucket_name = sys.env("READ_BUCKET_NAME")
-            write_bucket_name = sys.env("WRITE_BUCKET_NAME")
-            read_target = "s3a://" + read_bucket_name + "/clickstreams-" + target + "*"
-        } else if (current_environment == "local") {
-            spark_master = "local[*]"
-            read_target = target
-        } else {
-            println(usage)
-        }
-
+        val hdfs_server = sys.env("HDFS_SERVER")
+        val hdfs_target_path = sys.env("HDFS_TARGET_PATH")
+        val read_target = hdfs_server + "/" + hdfs_target_path
+        val write_target = hdfs_server + "/" + hdfs_target_path + "-results"
 
         val spark = SparkSession
            .builder()
-           .master(spark_master)
-           .appName("Compute path app")
+           .appName("Job that computes path rankings")
            .getOrCreate()
 
         // For implicit conversions like converting RDDs to DataFrames
@@ -95,10 +78,12 @@ object Main{
             }
         }
 
-        val paths_df = user_agg_df.map(PathResolver.resolve).flatMap(e => e._2).toDF()
+        val resolved_paths_df = user_agg_df.map(PathResolver.resolve).flatMap(e => e._2).toDF()
+        val paths_df = resolved_paths_df.selectExpr("CAST(value AS STRING)")
+        paths_df.createOrReplaceTempView("paths_rank")
+        val paths_rank_df = spark.sql("SELECT value,COUNT(*) as count FROM paths_rank GROUP BY path ORDER BY count DESC")
 
-        // Call API to apply Count Min Sketch on paths
-        val results = countMinSketch(paths_df, "value").orderBy(desc("value_freq")).show()
+        paths_rank_df.limit(1000).write.json(write_target)
 
     }
 }
