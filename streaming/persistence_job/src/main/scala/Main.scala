@@ -17,6 +17,7 @@ object Main{
         val hdfs_server = sys.env("HDFS_SERVER")
         val hdfs_target_path = sys.env("HDFS_TARGET_PATH")
         val hdfs_ckpt_path = sys.env("HDFS_CKPT_PATH")
+        val file_format = sys.env("FILE_FORMAT")
 
         val spark = SparkSession
            .builder()
@@ -49,7 +50,7 @@ object Main{
 
         val query = clickstream
         .writeStream
-        .format("json")
+        .format(file_format)
         .option("path", hdfs_server + "/" + hdfs_target_path)
         .option("checkpointLocation", hdfs_server + "/" + hdfs_ckpt_path)
         .partitionBy("year", "month", "day", "hour")
