@@ -14,8 +14,9 @@ object Main{
 
         val kafka_servers = sys.env("KAFKA_SERVERS")
         val kafka_topic = sys.env("KAFKA_TOPIC")
-        val target_bucket_name = sys.env("TARGET_BUCKET_NAME")
-        val checkpoint_bucket_name = sys.env("CKPT_BUCKET_NAME")
+        val hdfs_server = sys.env("HDFS_SERVER")
+        val hdfs_target_path = sys.env("HDFS_TARGET_PATH")
+        val hdfs_ckpt_path = sys.env("HDFS_CKPT_PATH")
 
         val spark = SparkSession
            .builder()
@@ -49,8 +50,8 @@ object Main{
         val query = clickstream
         .writeStream
         .format("json")
-        .option("path", "s3a://" + target_bucket_name + "/")
-        .option("checkpointLocation", "s3a://" + checkpoint_bucket_name + "/" + start_time + "/")
+        .option("path", hdfs_server + "/" + hdfs_target_path)
+        .option("checkpointLocation", hdfs_server + "/" + hdfs_ckpt_path)
         .partitionBy("year", "month", "day", "hour")
         .trigger(ProcessingTime("5 seconds"))
         .start()
