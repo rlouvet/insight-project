@@ -12,7 +12,7 @@ import java.util.Random
 object Main{
 
     val usage = """
-        Usage: target [ex:year=2018/month=02/day=13/hour=01]
+        Usage: target [ex:clickstreams-parquet/year=2018/month=02/day=13/hour=01]
     """
 
     def main(args: Array[String]) {
@@ -32,7 +32,7 @@ object Main{
         // For implicit conversions like converting RDDs to DataFrames
         import spark.implicits._
 
-        val df = spark.read.json(read_target).select(
+        val df = spark.read.parquet(read_target).select(
             $"epochtime".cast(LongType),
             $"userid".cast(IntegerType),
             $"pageid_origin".cast(IntegerType),
