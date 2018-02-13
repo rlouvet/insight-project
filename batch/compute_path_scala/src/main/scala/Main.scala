@@ -80,7 +80,7 @@ object Main{
         val resolved_paths_df = user_agg_df.map(PathResolver.resolve).flatMap(e => e._2).toDF()
         val paths_df = resolved_paths_df.selectExpr("CAST(value AS STRING)")
         paths_df.createOrReplaceTempView("paths_rank")
-        val paths_rank_df = spark.sql("SELECT value,COUNT(*) as count FROM paths_rank GROUP BY path ORDER BY count DESC")
+        val paths_rank_df = spark.sql("SELECT value,COUNT(*) as count FROM paths_rank GROUP BY value ORDER BY count DESC")
 
         paths_rank_df.limit(1000).write.json(write_target)
 
