@@ -45,7 +45,7 @@ object Main{
             .withColumn("year", from_unixtime($"epochtime"/1000,"yyyy"))
             .withColumn("month", from_unixtime($"epochtime"/1000,"MM"))
             .withColumn("day", from_unixtime($"epochtime"/1000,"dd"))
-            .withColumn("hour", from_unixtime($"epochtime"/1000,"hh"))
+            .withColumn("hour", from_unixtime($"epochtime"/1000,"HH"))
 
 
         val query = clickstream
