@@ -7,6 +7,45 @@
   <p><mark>RunID: {{run_id}}</mark></p>
 </div>
 
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<form action = "/run/" method = get>
+    <input type="hidden" name="run_id" value= "{{run_id}}"/>
+    <fieldset style= "text-align: center;">
+
+       {{ form.target_page.label }}
+       {{ form.target_page }}
+       {{ form.submit }}
+
+    </fieldset>
+</form>
+
+<div id="sankey_multiple" style="width: 100%; height: 900px; margin-left: 10%;
+margin-bottom: 100px ;margin-bottom: 100px;"></div>
+
+<script type="text/javascript">
+  google.charts.load("current", {packages:["sankey"]});
+  google.charts.setOnLoadCallback(drawChart);
+   function drawChart() {
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'From');
+    data.addColumn('string', 'To');
+    data.addColumn('number', 'Weight');
+    data.addRows(
+        {{sankey_data | safe}}
+    );
+
+    // Set chart options
+    var options = {
+      width: 600,
+    };
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.Sankey(document.getElementById('sankey_multiple'));
+    chart.draw(data, options);
+   }
+</script>
+
 <table class="table">
   <thead>
       <tr>

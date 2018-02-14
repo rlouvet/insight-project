@@ -1,5 +1,6 @@
 from flask import render_template, jsonify, request
 from app import app
+from app.forms import target_page_list
 import random
 import os, json
 import boto3
@@ -15,8 +16,15 @@ def index():
     return render_template('index.html', batch_runs=processed_object_list)
 
 
-@app.route('/run/<string:run_id>')
-def run(run_id):
+@app.route('/run/', methods=['GET'])
+def run():
+    run_id = request.args.get('run_id')
+    target_page = int(request.args.get('target_page'))
+    form = target_page_list.TargetPageListForm()
+    if target_page:
+        form.target_page.default = target_page
+        form.process()
+
     bucket_objects_list = awshelper.list_files()
     filtered_list = [
         element.key for element in bucket_objects_list
@@ -24,9 +32,29 @@ def run(run_id):
         and '.json' in element.key.split("/")[1]
     ]
     awshelper.download_file(filtered_list[0])
-
+    
     data = []
     for line in open('/tmp/data.json', 'r'):
         data.append(json.loads(line))
 
-    return render_template('results.html', run_id=run_id, results=data)
+    sankey_data = get_sankey(data, target_page)
+    print(sankey_data)
+
+    return render_template('results.html', run_id=run_id, results=data, sankey_data=sankey_data, form=form)
+
+def get_sankey(data, target_page):
+    output_data = []
+    for record in data:
+        path = json.loads(record['value'])
+        if len(path) > 0:
+            sink = path[-1]
+            if sink == target_page:
+                if len(path) == 1:
+                    output_record = ['self', str(sink), record['count']]
+                else:
+                    output_record = [str(path[:-1]), str(sink), record['count']]
+                    print("output_record:")
+                    print(output_record)
+                output_data.append(output_record)
+
+    return output_data

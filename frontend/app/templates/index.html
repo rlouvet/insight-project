@@ -16,7 +16,7 @@
   <tbody>
       {% for batch_run_element in batch_runs %}
       <tr>
-          <td><a href="/run/{{ batch_run_element }}"> {{ batch_run_element }}</td>
+          <td><a href="/run/?target_page=1&run_id={{ batch_run_element }}"> {{ batch_run_element }}</td>
       </tr>
       {% endfor %}
   </tbody>
