@@ -22,7 +22,7 @@ object Main{
 
         val hdfs_server = sys.env("HDFS_SERVER")
         val read_target = hdfs_server + "/" + target
-        val write_target = hdfs_server + "/" + target + "-results"
+        val write_target = hdfs_server + "/results/" + target
 
         val spark = SparkSession
            .builder()
