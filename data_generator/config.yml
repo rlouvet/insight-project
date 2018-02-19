@@ -3,7 +3,7 @@ sitemap:
   pages_num: 20
   links_per_page: 5
 walker:
-  resolved_probability: 0.1
+  resolved_probability: 0.3
 case:
   topic1: 0.5
   topic2: 0.3
