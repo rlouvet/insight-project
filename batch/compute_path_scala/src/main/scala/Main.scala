@@ -78,7 +78,7 @@ object Main{
         }
 
         val resolved_paths_df = user_agg_df.map(PathResolver.resolve).flatMap(e => e._2)
-        val partitioned_paths_df = resolved_paths_df.rdd
+        val paths_rank_df = resolved_paths_df.rdd
         .map(path => (path, 1))
         .partitionBy(new PathPartitioner(30))
         .reduceByKey(_+_)
