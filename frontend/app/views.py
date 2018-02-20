@@ -11,7 +11,7 @@ import awshelper
 def index():
     bucket_objects_list = awshelper.list_files()
     processed_object_list = [
-    element.key.split("/")[0] for element in bucket_objects_list if '.json' in element.key
+    element.key.rsplit("/", 1)[0] for element in bucket_objects_list if '.json' in element.key
     ]
     return render_template('index.html', batch_runs=processed_object_list)
 
@@ -28,24 +28,24 @@ def run():
     bucket_objects_list = awshelper.list_files()
     filtered_list = [
         element.key for element in bucket_objects_list
-        if run_id == element.key.split("/")[0]
-        and '.json' in element.key.split("/")[1]
+        if run_id == element.key.rsplit("/", 1)[0]
+        and '.json' in element.key.rsplit("/", 1)[1]
     ]
     awshelper.download_file(filtered_list[0])
-    
+
+
     data = []
     for line in open('/tmp/data.json', 'r'):
         data.append(json.loads(line))
 
     sankey_data = get_sankey(data, target_page)
-    print(sankey_data)
 
     return render_template('results.html', run_id=run_id, results=data, sankey_data=sankey_data, form=form)
 
 def get_sankey(data, target_page):
     output_data = []
     for record in data:
-        path = json.loads(record['value'])
+        path = record['value']
         if len(path) > 0:
             sink = path[-1]
             if sink == target_page:
@@ -53,8 +53,7 @@ def get_sankey(data, target_page):
                     output_record = ['self', str(sink), record['count']]
                 else:
                     output_record = [str(path[:-1]), str(sink), record['count']]
-                    print("output_record:")
-                    print(output_record)
+
                 output_data.append(output_record)
 
     return output_data
