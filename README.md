@@ -40,7 +40,7 @@ The last column `IsResolved` is a flag that equals `True` when the customer ackn
 To illustrate how the data is processed here is a sample scenario.
 
 |TimeStamp|CustomerID|NextPageID|IsResolved|
-|---|---|---|---|---|
+|---|---|---|---|
 |1515764691|1|28|False|
 |1515764752|2|35|False|
 |1515764876|2|42|True|
