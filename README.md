@@ -1,10 +1,10 @@
-# Insight Data Engineering Fellowship NYC (Jan 2018)
 # Customer PathRank
-## Improving self-service for online customer support
+> Insight Data Engineering Fellowship NYC (Jan 2018)
+> Improving self-service for online customer support
 
 This project has been developed in three weeks during my Insight Data Engineering fellowship in NYC in January 2018. This tool can be used to measure and improve self-service for online customer support. It ingests clickstream data into Kafka then advanced Spark analytics compute customer browsing path to success.
 
-### Business Case
+## Business Case
 Starting from two observations regarding customer support:
 - Navigating a customer support website to solve an issue can be a daunting experience for users
 - On the over side operating customer support is a big part of a company cost structure (especially custom tickets or calls)
@@ -19,7 +19,7 @@ Generalizable to other kinds of programmatic customer experience (not only websi
 ![Pipeline Architecture](/images/customer_pathrank_architecture.png "Pipeline Architecture")
 
 
-### What do we call a clickstream here?
+## What do we call a clickstream here?
 Let's model each webpage of the customer support website in a very simple way as:
 - a webpage unique ID
 - a list of links to other webpages within the customer support website
@@ -40,7 +40,7 @@ The last column `IsResolved` is a flag that equals `True` when the customer ackn
 
 ![Example of Customer Support Website Acknowledgment](/images/customer_support_website_acknowledgment_cropped.png "Example  of customer support website acknowledgment")
 
-### Sample scenario
+## Sample scenario
 To illustrate how the data is processed here is a sample scenario.
 
 |TimeStamp|CustomerID|NextPageID|IsResolved|
@@ -60,7 +60,15 @@ The first data processing job is to resolve the customer paths:
 |1515764691|1|[28,35,42]|3|
 |1515764752|2|[35,42]|2|
 
-Then useful metrics can be computed such as:
-- a flag that is raised whenever a path shows a **turnaround**. Like a GPS system, locations that have a significant and unexpected rate of turn-arounds should be inspected with higher priority.
-- the global average of path lengths: overall customer support percolation efficiency
-- the global variance of path lengths: no customer very unhappy
+## Analytic
+Then the current implementation computes the frequency (number of occurences) for each unique path that has been followed by customers. It involves a multi-step transformation:
+1. Grouping records by Customer ID
+2. Then ordering records by increasing timestamp
+3. Applying a custom agregation function to resolve the customer browsing paths. Implemented with PySpark combineByKey or Spark Scala custom Map function (`PathResolver`)
+4. Finally flatmap all resolved path removing the involved customerID and perform a count of the occurences for each distinct customer path in the dataset. This can be implemented with a Spark SQL query or with a reduceByKey action. 
+
+## Next developments
+If I had more time to develop this tool here is a list of features that could be a good add:
+- create a flag that is raised whenever a path shows a **turnaround**. Like a GPS system, locations that have a significant and unexpected rate of turn-arounds should be inspected with higher priority.
+- compute the global average of path lengths: overall customer support percolation efficiency
+- compute the global variance of path lengths: no customer very unhappy
