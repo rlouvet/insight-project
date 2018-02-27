@@ -15,6 +15,10 @@ My project is a data pipeline:
 - the output is intended for Data Science and Data Analyst teams
 Generalizable to other kinds of programmatic customer experience (not only websites: chatbot, etc)
 
+## Pipeline Architecture
+![Pipeline Architecture](/images/customer_pathrank_architecture.png "Pipeline Architecture")
+
+
 ### What do we call a clickstream here?
 Let's model each webpage of the customer support website in a very simple way as:
 - a webpage unique ID
