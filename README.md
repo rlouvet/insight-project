@@ -62,10 +62,10 @@ The data transformation job is to resolve the browsing paths followed by each cu
 ## Analytic
 The current implementation computes the frequency (number of occurences) for each unique path that has been followed by customers. It is then used to provide a list of distinct paths ranked by frequency.
 It involves a multi-step transformation:
-1. Grouping records by Customer ID
-2. Then ordering records by increasing timestamp
-3. Applying a custom agregation function to resolve the customer browsing paths. Implemented with PySpark combineByKey or Spark Scala custom Map function (`PathResolver`)
-4. Finally flatmap all resolved path removing the involved customerID and perform a count of the occurences for each distinct customer path in the dataset. This can be implemented with a Spark SQL query or with a reduceByKey action. 
+1. Grouping records by `CustomerID`
+2. Then ordering records by increasing `TimeStamp`
+3. Applying a custom agregation function to resolve the customer browsing paths. Implemented with PySpark `combineByKey` or Spark Scala custom Map function (`PathResolver`)
+4. Finally flatmap all resolved path removing the involved CustomerID and perform a count of the occurences for each distinct customer path in the dataset. This can be implemented with a Spark SQL query or with a `reduceByKey` action. 
 
 ## Next developments
 If I had more time to develop this tool here is a list of features that could be a good add:
