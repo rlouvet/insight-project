@@ -1,6 +1,5 @@
 # Customer PathRank
-> Insight Data Engineering Fellowship NYC (Jan 2018)
-> Improving self-service for online customer support
+> Insight Data Engineering Fellowship NYC (Jan 2018) - Improving self-service for online customer support
 
 This project has been developed in three weeks during my Insight Data Engineering fellowship in NYC in January 2018. This tool can be used to measure and improve self-service for online customer support. It ingests clickstream data into Kafka then advanced Spark analytics compute customer browsing path to success.
 
@@ -36,7 +35,7 @@ If a user clicks on link number one on the above page then a new clickstream rec
 |---|---|---|---|
 |1515764691|1|28|False|
 
-The last column `IsResolved` is a flag that equals `True` when the customer acknowledges that the webpage he read helped him solve his support case.
+The last column `IsResolved` is a flag that equals `True` when the customer acknowledges that the webpage he read helped him solve his support case. This flag is a signal that ends a customer browsing path.
 
 ![Example of Customer Support Website Acknowledgment](/images/customer_support_website_acknowledgment_cropped.png "Example  of customer support website acknowledgment")
 
@@ -53,7 +52,7 @@ To illustrate how the data is processed here is a sample scenario.
 
 ![Sample scenario](/images/sample_scenario.png "Sample scenario")
 
-The first data processing job is to resolve the customer paths:
+The data transformation job is to resolve the browsing paths followed by each customer. The `IsResolved` flag is a signal to end the path and process another one.
 
 |PathStartTimestamp|CustomerID|Path|Pathlength|
 |---|---|---|---|
@@ -61,7 +60,8 @@ The first data processing job is to resolve the customer paths:
 |1515764752|2|[35,42]|2|
 
 ## Analytic
-Then the current implementation computes the frequency (number of occurences) for each unique path that has been followed by customers. It involves a multi-step transformation:
+The current implementation computes the frequency (number of occurences) for each unique path that has been followed by customers. It is then used to provide a list of distinct paths ranked by frequency.
+It involves a multi-step transformation:
 1. Grouping records by Customer ID
 2. Then ordering records by increasing timestamp
 3. Applying a custom agregation function to resolve the customer browsing paths. Implemented with PySpark combineByKey or Spark Scala custom Map function (`PathResolver`)
